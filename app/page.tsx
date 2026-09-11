@@ -97,11 +97,13 @@ export default function HomePage() {
 
   const handleShare = () => {
     const url = typeof window !== 'undefined' ? window.location.href : '';
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-      showToast('Card link copied to clipboard! 📋');
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => showToast('Card link copied to clipboard.'),
+        () => showToast('Copy failed. Your link: ' + url)
+      );
     } else {
-      showToast('Link: ' + url);
+      showToast('Your link: ' + url);
     }
   };
 
@@ -133,7 +135,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-violet-600 selection:text-white">
+    <div className="min-h-screen bg-[#090b0d] text-neutral-100 flex flex-col font-sans">
       {/* Top Minimal Navigation */}
       <Navbar
         currentTheme={currentTheme}
@@ -154,7 +156,18 @@ export default function HomePage() {
         {/* ============================================================
             HERO CARD STAGE (The spotlight of the page)
             ============================================================ */}
-        <section className="w-full flex flex-col items-center" id="card-hero-section">
+        <section className="w-full flex flex-col items-center gap-5" id="card-hero-section">
+          <div className="w-full flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-5">
+            <div>
+              <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#c8ff3d]">Your identity, sharpened</p>
+              <h1 className="mt-2 max-w-2xl text-3xl sm:text-5xl font-black tracking-[-0.04em] text-white">Kimliğin. Tek bir keskin kartta.</h1>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-400">Kendini anlatan dijital kartını tasarla, canlı önizle ve tek bağlantıyla paylaş.</p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-neutral-400 shrink-0">
+              <span className="size-2 rounded-full bg-[#c8ff3d] shadow-[0_0_12px_#c8ff3d]" />
+              Live preview
+            </div>
+          </div>
           {showBothSides ? (
             /* Dual Side-by-Side View (Completely separated cards) */
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start justify-items-center">
@@ -300,14 +313,14 @@ export default function HomePage() {
       {/* Minimal Footer */}
       <footer className="border-t border-neutral-900 bg-neutral-950/90 py-5 px-4 text-center text-xs text-neutral-500">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
-          <span>SoloCard — Digital Identity Card</span>
+          <span>SoloCard — Your identity, in one sharp card.</span>
           <a
             href="https://openshaders.com/explore"
             target="_blank"
             rel="noreferrer"
             className="hover:text-neutral-300 transition-colors"
           >
-            OpenShaders Integration
+            Local-first privacy
           </a>
         </div>
       </footer>

@@ -1,5 +1,45 @@
 @import "tailwindcss";
 
+:root {
+  --sc-ink: #090b0d;
+  --sc-panel: #111518;
+  --sc-line: rgba(210, 224, 218, 0.12);
+  --sc-lime: #c8ff3d;
+  --sc-cobalt: #7d8cff;
+}
+
+* {
+  border-color: var(--sc-line);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--sc-ink);
+}
+
+body {
+  background-color: var(--sc-ink);
+  background-image: linear-gradient(rgba(200, 255, 61, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(200, 255, 61, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  color: #edf2ee;
+}
+
+::selection { background: var(--sc-lime); color: var(--sc-ink); }
+
+:focus-visible {
+  outline: 2px solid var(--sc-lime);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @layer utilities {
   .perspective-1000 {
     perspective: 1000px;
