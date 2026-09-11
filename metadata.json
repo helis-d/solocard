@@ -1,0 +1,6 @@
+{
+  "name": "SoloCard",
+  "description": "Create and customize your personal digital identity card with dynamic visual themes, badges, skills, and links.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
