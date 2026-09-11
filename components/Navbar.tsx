@@ -63,6 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="button"
             id="nav-dual-toggle-btn"
             onClick={onBothSidesToggle}
+            aria-pressed={showBothSides}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1.5 transition-all ${
               showBothSides
                 ? 'bg-violet-600 text-white border-violet-500 shadow-sm'

@@ -164,6 +164,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
               type="button"
               id={`${cardIdPrefix}-face-front-btn`}
               onClick={() => isFlipped && handleFlip()}
+              aria-pressed={!isFlipped}
               className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
                 !isFlipped
                   ? 'bg-neutral-100 text-neutral-950 shadow-sm'
