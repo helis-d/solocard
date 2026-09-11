@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CardProfile } from '@/lib/types';
 import { getCardTheme, STATUS_PRESETS } from '@/lib/constants';
-import { ShaderCanvas } from './ShaderCanvas';
 import {
   Globe,
   Github,
@@ -274,27 +273,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                   : `0 20px 50px -10px ${theme.glowColor}, 0 4px 14px rgba(0,0,0,0.4)`,
             }}
           >
-            {/* Dynamic WebGPU / 2D Shader Canvas */}
-            <ShaderCanvas
-              id={`${cardIdPrefix}-shader-canvas-front`}
-              themeKey={profile.themeKey}
-              mousePos={{ x: tilt.mx / 100 - 0.5, y: tilt.my / 100 - 0.5 }}
-            />
-
-            {/* Material Finish 1: Holographic Foil Shimmer */}
-            {material.finish === 'holographic' && (
-              <div
-                className="absolute inset-0 pointer-events-none mix-blend-color-dodge transition-opacity duration-300"
-                style={{
-                  opacity: (material.shimmerIntensity || 65) / 100,
-                  background: `linear-gradient(${
-                    tilt.mx * 2 + tilt.my
-                  }deg, rgba(255,0,128,0.2) 0%, rgba(0,255,255,0.25) 25%, rgba(255,255,0,0.2) 50%, rgba(138,43,226,0.3) 75%, rgba(0,255,128,0.2) 100%)`,
-                }}
-              />
-            )}
-
-            {/* Material Finish 2: Metallic Chrome Reflection */}
+            {/* Material Finish: Metallic Chrome Reflection */}
             {material.finish === 'metallic' && (
               <div
                 className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-40 transition-all duration-200"
@@ -561,13 +540,6 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
                   : `0 20px 50px -10px ${theme.glowColor}, 0 4px 14px rgba(0,0,0,0.4)`,
             }}
           >
-            {/* Dynamic Shader Canvas on Back */}
-            <ShaderCanvas
-              id={`${cardIdPrefix}-shader-canvas-back`}
-              themeKey={profile.themeKey}
-              mousePos={{ x: tilt.mx / 100 - 0.5, y: tilt.my / 100 - 0.5 }}
-            />
-
             {/* Back Header: Clean Name & Handle */}
             <div className="relative z-10 flex items-center justify-between border-b border-white/10 pb-2">
               <span className="text-xs font-bold tracking-wider uppercase opacity-85">
