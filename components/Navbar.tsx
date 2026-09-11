@@ -24,16 +24,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   onShare,
 }) => {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#090b0d]/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#090611]/85 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between gap-3">
         {/* Brand */}
         <div className="flex items-center gap-2.5 select-none">
-          <div className="size-8 rounded-lg bg-[#c8ff3d] text-[#090b0d] flex items-center justify-center font-black tracking-tighter shadow-[0_0_24px_rgba(200,255,61,0.2)]">
+          <div className="size-8 rounded-lg bg-[#b88cff] text-[#090611] flex items-center justify-center font-black tracking-tighter shadow-[0_0_24px_rgba(200,255,61,0.2)]">
             SC
           </div>
           <div className="flex items-center gap-2">
             <span className="font-black text-base tracking-tight text-neutral-100">SoloCard</span>
-            <span className="hidden sm:inline text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/5 text-[#c8ff3d] border border-white/10">
+            <span className="hidden sm:inline text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/5 text-[#b88cff] border border-white/10">
               Identity Studio
             </span>
           </div>

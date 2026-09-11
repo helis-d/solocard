@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --sc-ink: #090b0d;
-  --sc-panel: #111518;
-  --sc-line: rgba(210, 224, 218, 0.12);
-  --sc-lime: #c8ff3d;
-  --sc-cobalt: #7d8cff;
+  --sc-ink: #090611;
+  --sc-panel: #120d1f;
+  --sc-line: rgba(226, 211, 255, 0.14);
+  --sc-lime: #b88cff;
+  --sc-cobalt: #7c5cff;
 }
 
 * {
@@ -19,7 +19,7 @@ html {
 
 body {
   background-color: var(--sc-ink);
-  background-image: linear-gradient(rgba(200, 255, 61, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(200, 255, 61, 0.025) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(184, 140, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(184, 140, 255, 0.035) 1px, transparent 1px);
   background-size: 48px 48px;
   color: #edf2ee;
 }
