@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { CardProfile } from '@/lib/types';
-import { CARD_THEMES, STATUS_PRESETS } from '@/lib/constants';
+import { getCardTheme, STATUS_PRESETS } from '@/lib/constants';
 import { ShaderCanvas } from './ShaderCanvas';
 import {
   Globe,
@@ -90,7 +90,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
     setTilt({ rx: 0, ry: 0, mx: 50, my: 50 });
   };
 
-  const theme = CARD_THEMES[profile.themeKey] || CARD_THEMES['shawn_chen'] || CARD_THEMES['halftone'];
+  const theme = getCardTheme(profile.themeKey);
   const show = profile.show;
   const material = profile.material || {
     finish: 'holographic',

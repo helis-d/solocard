@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CardProfile } from '@/lib/types';
-import { CARD_THEMES, DEFAULT_PROFILE } from '@/lib/constants';
+import { CARD_THEMES, DEFAULT_PROFILE, getCardTheme } from '@/lib/constants';
 import { Navbar } from '@/components/Navbar';
 import { CardPreview } from '@/components/CardPreview';
 import { CardStudio } from '@/components/CardStudio';
@@ -116,7 +116,7 @@ export default function HomePage() {
     showToast(`Theme: ${themeName}`);
   };
 
-  const currentTheme = CARD_THEMES[profile.themeKey] || CARD_THEMES['shawn_chen'];
+  const currentTheme = getCardTheme(profile.themeKey);
 
   // Quick theme keys for top strip
   const quickThemeKeys = [
@@ -282,6 +282,7 @@ export default function HomePage() {
                     style={{
                       background: `linear-gradient(135deg, ${th.swatchColors[0]}, ${th.swatchColors[1]})`,
                     }}
+                    aria-label={`Use ${th.label} theme`}
                   />
                 );
               })}

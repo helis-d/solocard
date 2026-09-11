@@ -320,6 +320,37 @@ export const CARD_THEMES: Record<string, CardTheme> = {
   },
 };
 
+export function getCardTheme(themeKey: string): CardTheme {
+  const existingTheme = CARD_THEMES[themeKey];
+  if (existingTheme) return existingTheme;
+
+  const seed = [...themeKey].reduce((total, character) => total + character.charCodeAt(0), 0);
+  const palettes = [
+    ['#17102d', '#7c3aed', '#c4b5fd'],
+    ['#071f2c', '#0891b2', '#67e8f9'],
+    ['#26120a', '#ea580c', '#fdba74'],
+    ['#101c18', '#059669', '#6ee7b7'],
+  ] as const;
+  const palette = palettes[seed % palettes.length];
+
+  return {
+    key: themeKey,
+    label: `Custom Shader: @${themeKey}`,
+    description: 'A generated shader theme for your handle',
+    category: 'Custom Shader',
+    bgGradient: 'from-neutral-950 via-slate-900 to-violet-950',
+    cardBg: `linear-gradient(145deg, ${palette[0]}, ${palette[1]}88)`,
+    textColor: '#f8fafc',
+    accentColor: palette[2],
+    chipBg: `${palette[1]}29`,
+    borderColor: `${palette[2]}66`,
+    glowColor: `${palette[1]}80`,
+    swatchColors: [palette[0], palette[1]],
+    darkBgHex: palette[0],
+    isCustomOpenShader: true,
+  };
+}
+
 export const DEFAULT_PROFILE: CardProfile = {
   name: 'Alex Rivera',
   username: 'alexrivera',
@@ -337,7 +368,7 @@ export const DEFAULT_PROFILE: CardProfile = {
     discord: 'alex#0001',
     linkedin: 'https://linkedin.com',
   },
-  themeKey: 'shawn_chen',
+  themeKey: 'holographic',
   show: {
     username: true,
     location: true,
@@ -521,7 +552,7 @@ export const SAMPLE_EXPLORE_PROFILES: CardProfile[] = [
     skills: ['WebGPU', 'Shaders', 'C++', 'Vulkan', 'TypeScript'],
     badges: ['Software Engineer', 'AI Explorer'],
     links: { github: 'https://github.com', website: 'https://alex.graphics' },
-    themeKey: 'shawn_chen',
+    themeKey: 'holographic',
     show: {
       username: true,
       location: true,
