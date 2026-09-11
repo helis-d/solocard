@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CardProfile } from '@/lib/types';
-import { CARD_THEMES, DEFAULT_PROFILE } from '@/lib/constants';
+import { CARD_THEMES, DEFAULT_PROFILE, getCardTheme } from '@/lib/constants';
 import { Navbar } from '@/components/Navbar';
 import { CardPreview } from '@/components/CardPreview';
 import { CardStudio } from '@/components/CardStudio';
@@ -12,58 +12,46 @@ import { downloadCardAsPng } from '@/lib/exportCard';
 const STORAGE_KEY = 'solocard_user_profile_v4';
 const LEGACY_STORAGE_KEY = 'solocard_user_profile_v3';
 
+const encodeCardProfile = (value: CardProfile) =>
+  btoa(unescape(encodeURIComponent(JSON.stringify(value))));
+
 export default function HomePage() {
   const [profile, setProfile] = useState<CardProfile>(DEFAULT_PROFILE);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showBothSides, setShowBothSides] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isSharedCard, setIsSharedCard] = useState(false);
 
-  // Safely restore user profile from localStorage after hydration
+  const mergeProfile = (parsed: Partial<CardProfile>) => {
+    setProfile((prev) => ({
+      ...prev,
+      ...parsed,
+      show: { ...prev.show, ...(parsed.show || {}) },
+      links: { ...prev.links, ...(parsed.links || {}) },
+      material: { ...prev.material, ...(parsed.material || {}) },
+      typography: { ...prev.typography, ...(parsed.typography || {}) },
+      status: { ...prev.status, ...(parsed.status || {}) },
+      avatarConfig: { ...prev.avatarConfig, ...(parsed.avatarConfig || {}) },
+      showcase: { ...prev.showcase, ...(parsed.showcase || {}) },
+    }) as CardProfile);
+  };
+
+  // Shared cards are self-contained in the URL so recipients do not need an account or storage.
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
-        let saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) {
-          saved = localStorage.getItem(LEGACY_STORAGE_KEY);
+        const sharedData = new URLSearchParams(window.location.search).get('card');
+        if (sharedData) {
+          const parsed = JSON.parse(decodeURIComponent(escape(atob(sharedData)))) as Partial<CardProfile>;
+          mergeProfile(parsed);
+          setIsSharedCard(true);
+          return;
         }
 
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          setProfile((prev) => ({
-            ...prev,
-            ...parsed,
-            show: {
-              ...prev.show,
-              ...(parsed.show || {}),
-            },
-            links: {
-              ...prev.links,
-              ...(parsed.links || {}),
-            },
-            material: {
-              ...prev.material,
-              ...(parsed.material || {}),
-            },
-            typography: {
-              ...prev.typography,
-              ...(parsed.typography || {}),
-            },
-            status: {
-              ...prev.status,
-              ...(parsed.status || {}),
-            },
-            avatarConfig: {
-              ...prev.avatarConfig,
-              ...(parsed.avatarConfig || {}),
-            },
-            showcase: {
-              ...prev.showcase,
-              ...(parsed.showcase || {}),
-            },
-          }));
-        }
+        let saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (saved) mergeProfile(JSON.parse(saved));
       } catch (e) {
-        console.warn('Could not load from localStorage:', e);
+        console.warn('Could not load card data:', e);
       }
     }, 0);
     return () => clearTimeout(timer);
@@ -96,12 +84,16 @@ export default function HomePage() {
   };
 
   const handleShare = () => {
-    const url = typeof window !== 'undefined' ? window.location.href : '';
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-      showToast('Card link copied to clipboard! 📋');
+    const url = typeof window !== 'undefined'
+      ? `${window.location.origin}${window.location.pathname}?card=${encodeCardProfile(profile)}`
+      : '';
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => showToast('Card link copied to clipboard.'),
+        () => showToast('Copy failed. Your link: ' + url)
+      );
     } else {
-      showToast('Link: ' + url);
+      showToast('Your link: ' + url);
     }
   };
 
@@ -114,7 +106,40 @@ export default function HomePage() {
     showToast(`Theme: ${themeName}`);
   };
 
-  const currentTheme = CARD_THEMES[profile.themeKey] || CARD_THEMES['shawn_chen'];
+  const currentTheme = getCardTheme(profile.themeKey);
+
+  if (isSharedCard) {
+    return (
+      <div className="min-h-screen bg-[#090611] text-neutral-100 flex flex-col font-sans">
+        <header className="w-full border-b border-white/10 bg-[#090611]/85 backdrop-blur-xl">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="size-8 rounded-lg bg-[#b88cff] text-[#090611] flex items-center justify-center font-black tracking-tighter shadow-[0_0_24px_rgba(200,255,61,0.2)]">SC</div>
+              <span className="font-black text-base tracking-tight">SoloCard</span>
+            </div>
+            <a href={window.location.pathname} className="text-xs font-semibold text-neutral-400 hover:text-white transition-colors">Create your own</a>
+          </div>
+        </header>
+        <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 flex flex-col items-center">
+          <div className="w-full text-center mb-8">
+            <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#b88cff]">Digital identity</p>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.03em] text-white">{profile.name || 'A SoloCard profile'}</h1>
+            <p className="mt-2 text-sm text-neutral-400">Tap or use the controls to view both sides.</p>
+          </div>
+          <CardPreview
+            profile={profile}
+            isFlipped={isFlipped}
+            onFlipToggle={() => setIsFlipped((prev) => !prev)}
+            showFlipControls={true}
+            enableTilt={true}
+            cardIdPrefix="shared-card"
+            className="w-full"
+          />
+        </main>
+        <footer className="border-t border-neutral-900 bg-neutral-950/90 py-5 px-4 text-center text-xs text-neutral-500">SoloCard — Your identity, in one sharp card.</footer>
+      </div>
+    );
+  }
 
   // Quick theme keys for top strip
   const quickThemeKeys = [
@@ -133,7 +158,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans selection:bg-violet-600 selection:text-white">
+    <div className="min-h-screen bg-[#090611] text-neutral-100 flex flex-col font-sans">
       {/* Top Minimal Navigation */}
       <Navbar
         currentTheme={currentTheme}
@@ -154,7 +179,18 @@ export default function HomePage() {
         {/* ============================================================
             HERO CARD STAGE (The spotlight of the page)
             ============================================================ */}
-        <section className="w-full flex flex-col items-center" id="card-hero-section">
+        <section className="w-full flex flex-col items-center gap-5" id="card-hero-section">
+          <div className="w-full flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-5">
+            <div>
+              <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#b88cff]">Your identity, sharpened</p>
+              <h1 className="mt-2 max-w-2xl text-3xl sm:text-5xl font-black tracking-[-0.04em] text-white">Your identity. One sharp card.</h1>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-400">Design a digital card that tells your story, preview it live, and share it with one link.</p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-neutral-400 shrink-0">
+              <span className="size-2 rounded-full bg-[#b88cff] shadow-[0_0_12px_#b88cff]" />
+              Live preview
+            </div>
+          </div>
           {showBothSides ? (
             /* Dual Side-by-Side View (Completely separated cards) */
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start justify-items-center">
@@ -269,6 +305,7 @@ export default function HomePage() {
                     style={{
                       background: `linear-gradient(135deg, ${th.swatchColors[0]}, ${th.swatchColors[1]})`,
                     }}
+                    aria-label={`Use ${th.label} theme`}
                   />
                 );
               })}
@@ -300,14 +337,14 @@ export default function HomePage() {
       {/* Minimal Footer */}
       <footer className="border-t border-neutral-900 bg-neutral-950/90 py-5 px-4 text-center text-xs text-neutral-500">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
-          <span>SoloCard — Digital Identity Card</span>
+          <span>SoloCard — Your identity, in one sharp card.</span>
           <a
             href="https://openshaders.com/explore"
             target="_blank"
             rel="noreferrer"
             className="hover:text-neutral-300 transition-colors"
           >
-            OpenShaders Integration
+            Local-first privacy
           </a>
         </div>
       </footer>

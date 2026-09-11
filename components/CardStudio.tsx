@@ -65,6 +65,7 @@ export const CardStudio: React.FC<CardStudioProps> = ({
   const [themeFilter, setThemeFilter] = useState<'all' | 'rare' | 'classic'>('all');
   const [openShadersHandleInput, setOpenShadersHandleInput] = useState('');
   const [shaderNotification, setShaderNotification] = useState('');
+  const [customThemes, setCustomThemes] = useState<Record<string, (typeof CARD_THEMES)[string]>>({});
 
   const material = profile.material || {
     finish: 'holographic',
@@ -108,7 +109,7 @@ export const CardStudio: React.FC<CardStudioProps> = ({
       onChange({ ...profile, themeKey: handle });
       setShaderNotification(`Shader theme applied: @${handle}`);
     } else {
-      CARD_THEMES[handle] = {
+      const customTheme = {
         key: handle,
         label: `@${handle} (Custom Shader)`,
         description: `Procedural WebGPU shader: ${rarityInfo.rarity.toUpperCase()} (${rarityInfo.rate})`,
@@ -124,9 +125,10 @@ export const CardStudio: React.FC<CardStudioProps> = ({
         chipBg: 'rgba(192, 132, 252, 0.16)',
         borderColor: 'rgba(192, 132, 252, 0.4)',
         glowColor: 'rgba(168, 85, 247, 0.45)',
-        swatchColors: ['#1e1035', '#8b5cf6'],
+        swatchColors: ['#1e1035', '#8b5cf6'] as [string, string],
         darkBgHex: '#150f29',
       };
+      setCustomThemes((current) => ({ ...current, [handle]: customTheme }));
       onChange({ ...profile, themeKey: handle });
       setShaderNotification(`Custom WebGPU shader generated for @${handle} (${rarityInfo.rate})!`);
     }
@@ -184,7 +186,7 @@ export const CardStudio: React.FC<CardStudioProps> = ({
   };
 
   // Filtered themes
-  const themeEntries = Object.entries(CARD_THEMES).filter(([_, th]) => {
+  const themeEntries = Object.entries({ ...CARD_THEMES, ...customThemes }).filter(([_, th]) => {
     if (themeFilter === 'rare') return Boolean(th.rarity);
     if (themeFilter === 'classic') return !th.rarity;
     return true;
@@ -192,6 +194,13 @@ export const CardStudio: React.FC<CardStudioProps> = ({
 
   return (
     <div className="w-full bg-neutral-900/70 backdrop-blur-xl border border-neutral-800/80 rounded-2xl p-5 sm:p-7 shadow-xl">
+      <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-300/80">SoloCard Studio</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-white">Make your identity unmistakable.</h2>
+        </div>
+        <p className="text-xs text-neutral-500">Changes update the preview instantly</p>
+      </div>
       {/* 4 Clean Primary Tabs */}
       <div className="flex items-center justify-between border-b border-neutral-800 pb-4 mb-6 gap-2">
         <div className="flex items-center gap-1.5 p-1 bg-neutral-950/80 rounded-xl border border-neutral-800/80 max-w-full overflow-x-auto scrollbar-none">
