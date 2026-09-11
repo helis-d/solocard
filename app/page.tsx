@@ -12,58 +12,46 @@ import { downloadCardAsPng } from '@/lib/exportCard';
 const STORAGE_KEY = 'solocard_user_profile_v4';
 const LEGACY_STORAGE_KEY = 'solocard_user_profile_v3';
 
+const encodeCardProfile = (value: CardProfile) =>
+  btoa(unescape(encodeURIComponent(JSON.stringify(value))));
+
 export default function HomePage() {
   const [profile, setProfile] = useState<CardProfile>(DEFAULT_PROFILE);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showBothSides, setShowBothSides] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isSharedCard, setIsSharedCard] = useState(false);
 
-  // Safely restore user profile from localStorage after hydration
+  const mergeProfile = (parsed: Partial<CardProfile>) => {
+    setProfile((prev) => ({
+      ...prev,
+      ...parsed,
+      show: { ...prev.show, ...(parsed.show || {}) },
+      links: { ...prev.links, ...(parsed.links || {}) },
+      material: { ...prev.material, ...(parsed.material || {}) },
+      typography: { ...prev.typography, ...(parsed.typography || {}) },
+      status: { ...prev.status, ...(parsed.status || {}) },
+      avatarConfig: { ...prev.avatarConfig, ...(parsed.avatarConfig || {}) },
+      showcase: { ...prev.showcase, ...(parsed.showcase || {}) },
+    }) as CardProfile);
+  };
+
+  // Shared cards are self-contained in the URL so recipients do not need an account or storage.
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
-        let saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) {
-          saved = localStorage.getItem(LEGACY_STORAGE_KEY);
+        const sharedData = new URLSearchParams(window.location.search).get('card');
+        if (sharedData) {
+          const parsed = JSON.parse(decodeURIComponent(escape(atob(sharedData)))) as Partial<CardProfile>;
+          mergeProfile(parsed);
+          setIsSharedCard(true);
+          return;
         }
 
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          setProfile((prev) => ({
-            ...prev,
-            ...parsed,
-            show: {
-              ...prev.show,
-              ...(parsed.show || {}),
-            },
-            links: {
-              ...prev.links,
-              ...(parsed.links || {}),
-            },
-            material: {
-              ...prev.material,
-              ...(parsed.material || {}),
-            },
-            typography: {
-              ...prev.typography,
-              ...(parsed.typography || {}),
-            },
-            status: {
-              ...prev.status,
-              ...(parsed.status || {}),
-            },
-            avatarConfig: {
-              ...prev.avatarConfig,
-              ...(parsed.avatarConfig || {}),
-            },
-            showcase: {
-              ...prev.showcase,
-              ...(parsed.showcase || {}),
-            },
-          }));
-        }
+        let saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (saved) mergeProfile(JSON.parse(saved));
       } catch (e) {
-        console.warn('Could not load from localStorage:', e);
+        console.warn('Could not load card data:', e);
       }
     }, 0);
     return () => clearTimeout(timer);
@@ -96,7 +84,9 @@ export default function HomePage() {
   };
 
   const handleShare = () => {
-    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const url = typeof window !== 'undefined'
+      ? `${window.location.origin}${window.location.pathname}?card=${encodeCardProfile(profile)}`
+      : '';
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(url).then(
         () => showToast('Card link copied to clipboard.'),
@@ -117,6 +107,39 @@ export default function HomePage() {
   };
 
   const currentTheme = getCardTheme(profile.themeKey);
+
+  if (isSharedCard) {
+    return (
+      <div className="min-h-screen bg-[#090b0d] text-neutral-100 flex flex-col font-sans">
+        <header className="w-full border-b border-white/10 bg-[#090b0d]/85 backdrop-blur-xl">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="size-8 rounded-lg bg-[#c8ff3d] text-[#090b0d] flex items-center justify-center font-black tracking-tighter shadow-[0_0_24px_rgba(200,255,61,0.2)]">SC</div>
+              <span className="font-black text-base tracking-tight">SoloCard</span>
+            </div>
+            <a href={window.location.pathname} className="text-xs font-semibold text-neutral-400 hover:text-white transition-colors">Create your own</a>
+          </div>
+        </header>
+        <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 flex flex-col items-center">
+          <div className="w-full text-center mb-8">
+            <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#c8ff3d]">Digital identity</p>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.03em] text-white">{profile.name || 'A SoloCard profile'}</h1>
+            <p className="mt-2 text-sm text-neutral-400">Tap or use the controls to view both sides.</p>
+          </div>
+          <CardPreview
+            profile={profile}
+            isFlipped={isFlipped}
+            onFlipToggle={() => setIsFlipped((prev) => !prev)}
+            showFlipControls={true}
+            enableTilt={true}
+            cardIdPrefix="shared-card"
+            className="w-full"
+          />
+        </main>
+        <footer className="border-t border-neutral-900 bg-neutral-950/90 py-5 px-4 text-center text-xs text-neutral-500">SoloCard — Your identity, in one sharp card.</footer>
+      </div>
+    );
+  }
 
   // Quick theme keys for top strip
   const quickThemeKeys = [
