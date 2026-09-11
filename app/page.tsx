@@ -160,8 +160,8 @@ export default function HomePage() {
           <div className="w-full flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-5">
             <div>
               <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#c8ff3d]">Your identity, sharpened</p>
-              <h1 className="mt-2 max-w-2xl text-3xl sm:text-5xl font-black tracking-[-0.04em] text-white">Kimliğin. Tek bir keskin kartta.</h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-400">Kendini anlatan dijital kartını tasarla, canlı önizle ve tek bağlantıyla paylaş.</p>
+              <h1 className="mt-2 max-w-2xl text-3xl sm:text-5xl font-black tracking-[-0.04em] text-white">Your identity. One sharp card.</h1>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-400">Design a digital card that tells your story, preview it live, and share it with one link.</p>
             </div>
             <div className="flex items-center gap-2 text-xs text-neutral-400 shrink-0">
               <span className="size-2 rounded-full bg-[#c8ff3d] shadow-[0_0_12px_#c8ff3d]" />

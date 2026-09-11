@@ -54,7 +54,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
     const updateTime = () => {
       const now = new Date();
       setCurrentTime(
-        now.toLocaleTimeString('tr-TR', {
+        now.toLocaleTimeString('en-US', {
           hour: '2-digit',
           minute: '2-digit',
         })
@@ -104,9 +104,9 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
   };
   const status = profile.status || {
     status: 'available',
-    customText: 'Projeler için Uygun',
+    customText: 'Available for Projects',
     showClock: true,
-    cityLabel: 'İstanbul',
+    cityLabel: 'San Francisco',
   };
   const avatarConfig = profile.avatarConfig || {
     type: 'monogram',
